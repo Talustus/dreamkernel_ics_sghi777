@@ -1,0 +1,116 @@
+scripts/kconfig/conf --silentoldconfig Kconfig
+  CHK     include/linux/version.h
+  CHK     include/generated/utsrelease.h
+  UPD     include/generated/utsrelease.h
+  HOSTCC  scripts/kallsyms
+  CC      scripts/mod/empty.o
+  HOSTCC  scripts/mod/mk_elfconfig
+make[1]: »include/generated/mach-types.h« ist bereits aktualisiert.
+  CC      kernel/bounds.s
+  HOSTCC  scripts/conmakehash
+  HOSTCC  scripts/recordmcount
+  GEN     include/generated/bounds.h
+  CC      arch/arm/kernel/asm-offsets.s
+  MKELF   scripts/mod/elfconfig.h
+  HOSTCC  scripts/mod/file2alias.o
+  HOSTCC  scripts/mod/modpost.o
+  HOSTCC  scripts/mod/sumversion.o
+  GEN     include/generated/asm-offsets.h
+  CALL    scripts/checksyscalls.sh
+  HOSTLD  scripts/mod/modpost
+  CC [M]  fs/cifs/cifsfs.o
+  CC [M]  fs/fuse/dev.o
+  CC [M]  fs/cifs/cifssmb.o
+  CC [M]  fs/cifs/cifs_debug.o
+  CC [M]  fs/cifs/connect.o
+  CC [M]  fs/fuse/dir.o
+  CC [M]  fs/cifs/dir.o
+  CC [M]  fs/fuse/file.o
+  CC [M]  fs/cifs/file.o
+  CC [M]  fs/fuse/inode.o
+  CC [M]  fs/cifs/inode.o
+  CC [M]  fs/fuse/control.o
+  CC [M]  fs/cifs/link.o
+  CC [M]  fs/cifs/misc.o
+  CC [M]  fs/cifs/netmisc.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/bcmsdio/sys/bcmsdh.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/bcmsdio/sys/bcmsdh_linux.o
+  CC [M]  drivers/samsung/fm_si4709/Si4709_dev.o
+  CC [M]  drivers/samsung/fm_si4709/Si4709_i2c_drv.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/bcmsdio/sys/bcmsdh_sdmmc.o
+  LD [M]  fs/fuse/fuse.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/bcmsdio/sys/bcmsdh_sdmmc_linux.o
+  CC [M]  drivers/scsi/scsi_wait_scan.o
+  CC [M]  fs/cifs/smbencrypt.o
+  CC [M]  drivers/samsung/j4fs/j4fs_kernel.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/dhd/sys/dhd_bta.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/dhd/sys/dhd_cdc.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/dhd/sys/dhd_common.o
+  CC [M]  drivers/staging/android/logger.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/dhd/sys/dhd_custom_gpio.o
+  CC [M]  fs/cifs/transport.o
+  CC [M]  fs/cifs/asn1.o
+  CC [M]  fs/cifs/cifs_unicode.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/dhd/sys/dhd_custom_sec.o
+  CC [M]  drivers/samsung/fm_si4709/Si4709_main.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/dhd/sys/dhd_linux.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/dhd/sys/dhd_linux_sched.o
+  CC [M]  drivers/samsung/j4fs/llid_kernel.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/dhd/sys/dhd_cfg80211.o
+  CC [M]  drivers/usb/serial/usb-serial.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/dhd/sys/dhd_sdio.o
+  CC [M]  drivers/samsung/j4fs/fsd_common.o
+  CC [M]  drivers/usb/serial/generic.o
+  LD [M]  drivers/samsung/fm_si4709/Si4709_driver.o
+  CC [M]  drivers/usb/serial/bus.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/shared/aiutils.o
+  CC [M]  drivers/usb/serial/ftdi_sio.o
+  CC [M]  fs/cifs/nterr.o
+  CC [M]  fs/cifs/xattr.o
+  CC [M]  drivers/usb/serial/pl2303.o
+  CC [M]  fs/cifs/cifsencrypt.o
+  CC [M]  fs/cifs/readdir.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/shared/bcmevent.o
+  CC [M]  fs/cifs/ioctl.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/shared/bcmutils.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/wl/bcmwifi/src/bcmwifi_channels.o
+  CC [M]  fs/cifs/sess.o
+  CC [M]  fs/cifs/export.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/shared/hndpmu.o
+  LD [M]  drivers/usb/serial/usbserial.o
+  CC [M]  fs/cifs/dns_resolve.o
+  CC [M]  fs/cifs/cifs_dfs_ref.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/shared/linux_osl.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/shared/sbutils.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/shared/siutils.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/wl/sys/wl_android.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/wl/sys/wl_cfg80211.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/wl/sys/wl_cfgp2p.o
+  LD [M]  drivers/samsung/j4fs/j4fs.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/wl/sys/wldev_common.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/wl/sys/wl_linux_mon.o
+  LD [M]  fs/cifs/cifs.o
+  CC [M]  drivers/net/wireless/bcmdhd/src/wl/sys/wl_roam.o
+  LD [M]  drivers/net/wireless/bcmdhd/dhd.o
+  Building modules, stage 2.
+  MODPOST 10 modules
+  CC      drivers/net/wireless/bcmdhd/dhd.mod.o
+  CC      drivers/samsung/fm_si4709/Si4709_driver.mod.o
+  CC      drivers/samsung/j4fs/j4fs.mod.o
+  CC      drivers/scsi/scsi_wait_scan.mod.o
+  CC      drivers/staging/android/logger.mod.o
+  CC      drivers/usb/serial/ftdi_sio.mod.o
+  CC      drivers/usb/serial/pl2303.mod.o
+  CC      drivers/usb/serial/usbserial.mod.o
+  CC      fs/cifs/cifs.mod.o
+  CC      fs/fuse/fuse.mod.o
+  LD [M]  drivers/scsi/scsi_wait_scan.ko
+  LD [M]  fs/cifs/cifs.ko
+  LD [M]  drivers/usb/serial/pl2303.ko
+  LD [M]  drivers/usb/serial/ftdi_sio.ko
+  LD [M]  drivers/staging/android/logger.ko
+  LD [M]  fs/fuse/fuse.ko
+  LD [M]  drivers/samsung/fm_si4709/Si4709_driver.ko
+  LD [M]  drivers/net/wireless/bcmdhd/dhd.ko
+  LD [M]  drivers/samsung/j4fs/j4fs.ko
+  LD [M]  drivers/usb/serial/usbserial.ko
