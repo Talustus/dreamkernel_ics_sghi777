@@ -23,9 +23,9 @@ TXTCLR='\e[0m'    		# Text Reset
 # Directory Settings
 #
 export KERNELDIR=`readlink -f .`
-export INITRAMFS_SOURCE=`readlink -f $KERNELDIR/../initramfs-sghi777`
+export INITRAMFS_SOURCE=`readlink -f $KERNELDIR/../initramfs`
 export PARENT_DIR=`readlink -f ..`
-export INITRAMFS_TMP="/tmp/initramfs-source777"
+export INITRAMFS_TMP="/tmp/initramfs-i777"
 export RELEASEDIR=`readlink -f $KERNELDIR/../releases`
 
 #
@@ -33,11 +33,12 @@ export RELEASEDIR=`readlink -f $KERNELDIR/../releases`
 #
 KBUILD_BUILD_HOST=`hostname | sed 's|ip-projects.de|dream-irc.com|g'`
 HOSTNAME=$KBUILD_BUILD_HOST
+KRNRLS="DreamKernel_SGH-I777-v1.1"
 #
 # Target Settings
 #
 export ARCH=arm
-export CROSS_COMPILE=$PARENT_DIR/arm-galaxys2-androideabi/bin/galaxys2-
+export CROSS_COMPILE=$PARENT_DIR/../arm-galaxys2-androideabi/bin/galaxys2-
 export USE_SEC_FIPS_MODE=true
 
 
@@ -55,29 +56,12 @@ then
 fi
 
 
-if [ -f $KERNELDIR/.config ];
+if [ ! -f $KERNELDIR/.config ];
 then 
-  echo -e "${BLDYLW} found old Kernel Config deleting it ... ${TXTCLR}"
-  rm -fv $KERNELDIR/.config
-fi
-
-echo -e "${BLDGRN}Do you want to build a swap or noswap kernel? ${BLDRED}(swap/noswap)${TXTCLR}"
-read answer
-if [ "$answer" == "swap" ];
-then
-  make clean
-  echo -e "${TXTYLW}creating default config (dream_i777swap_defconfig):${TXTCLR}"
-  make dream_i777swap_defconfig
-  KRNRLS=DreamKernel-v1.6-I777swap
-elif [ "$answer" == "noswap" ];
-then
-  make clean
-  echo -e "${TXTYLW}creating default config (dream_i777noswap_defconfig):${TXTCLR}"
-  make dream_i777noswap_defconfig
-  KRNRLS=DreamKernel-v1.6-I777noswap
-else 
-  echo -e "${TXTRED}ERROR !!! unknown build option try swap/noswap ${TXTCLR}"
-  exit 1
+  echo -e "${BLDYLW} no Kernel config found creating it ... ${TXTCLR}"
+  make arch=arm dream_i777_defconfig
+  echo -e "${BLDYLW} Kernel config created redo the command $0 ... ${TXTCLR}"
+  exit 0
 fi
 
 . $KERNELDIR/.config
@@ -85,18 +69,21 @@ fi
 # remove Files of old/previous Builds
 #
 echo -e "${TXTYLW}Deleting Files of previous Builds ...${TXTCLR}"
+
+make -j6 clean
 rm -rvf $INITRAMFS_TMP
 rm -rvf $INITRAMFS_TMP.cpio
 rm -vf $KERNELDIR/zImage
 rm -vf $KERNELDIR/compile-modules.log
 rm -vf $KERNELDIR/compile-zImage.log
+echo 0 > .version
 
 # Start the Build
 #
 echo -e "${TXTYLW}CleanUP done, starting kernel Build ...${TXTCLR}"
 cd $KERNELDIR/
 
-nice -n 10 make -j 12 KBUILD_BUILD_HOST="$HOSTNAME" modules | tee compile-modules.log || exit 1
+nice -n 10 make -j12 KBUILD_BUILD_HOST="$HOSTNAME" modules 2>&1 | tee compile-modules.log || exit 1
 sleep 2
 
 echo -e "${TXTGRN}Build: Stage 1 successfully completed${TXTCLR}"
@@ -127,18 +114,19 @@ sleep 1
 
 # create the initramfs cpio archive
 #
-#echo -e "${TXTYLW}Creating initial Ram Filesystem: ${INITRAMFS_TMP}.cpio ${TXTCLR}"
-#cd $INITRAMFS_TMP
-#find | fakeroot cpio -H newc -o > $INITRAMFS_TMP.cpio 2>/dev/null
-#ls -lh $INITRAMFS_TMP.cpio
-#cd -
+echo -e "${TXTYLW}Creating initial Ram Filesystem: ${INITRAMFS_TMP}.cpio ${TXTCLR}"
+cd $INITRAMFS_TMP
+find | fakeroot cpio -H newc -o > $INITRAMFS_TMP.cpio 2>/dev/null
+ls -lh $INITRAMFS_TMP.cpio
+cd -
 sleep 1
 
 # Start Final Kernel Build
 #
 echo -e "${TXTYLW}Starting final Build: Stage 2${TXTCLR}"
-nice -n 10 make -j 10 zImage KBUILD_BUILD_HOST="$HOSTNAME" CONFIG_INITRAMFS_SOURCE="$INITRAMFS_TMP" | tee compile-zImage.log || exit 1
+nice -n 10 make -j12 KBUILD_BUILD_HOST="$HOSTNAME" CONFIG_INITRAMFS_SOURCE="$INITRAMFS_TMP.cpio" zImage 2>&1 | tee compile-zImage.log || exit 1
 sleep 1
+
 $KERNELDIR/mkshbootimg.py $KERNELDIR/zImage $KERNELDIR/arch/arm/boot/zImage $KERNELDIR/payload.tar $KERNELDIR/recovery.tar.xz
 
 echo -e "${TXTGRN}Final Build: Stage 2 completed successfully!${TXTCLR}"
@@ -162,6 +150,9 @@ zip -u $RELEASEDIR/$ARCNAME-CWM.zip zImage
 ## List the Files
 ls -lh $RELEASEDIR/$ARCNAME.tar
 ls -lh $RELEASEDIR/$ARCNAME-CWM.zip
+
+# Final Clean UP
+# rm -rf $INITRAMFS_TMP
 
 echo -e "${BLDGRN}	#############################	${TXTCLR}"
 echo -e "${TXTRED}	# Script completed, exiting #	${TXTCLR}"

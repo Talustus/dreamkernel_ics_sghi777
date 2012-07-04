@@ -34,6 +34,7 @@
 #ifndef _dhd_h_
 #define _dhd_h_
 
+#include "dhd_sec_feature.h"
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/slab.h>
@@ -79,6 +80,7 @@ enum dhd_bus_state {
 #define HOSTAPD_MASK			0x0002
 #define WFD_MASK			0x0004
 #define SOFTAP_FW_MASK			0x0008
+#define CONCURRENT_MASK			(STA_MASK | WFD_MASK)
 
 /* max sequential rxcntl timeouts to set HANG event */
 #define MAX_CNTL_TIMEOUT  2
@@ -252,13 +254,20 @@ typedef struct dhd_pub {
 	void* wlfc_state;
 #endif
 	bool	dongle_isolation;
+	bool	dongle_trap_occured;
 	int   hang_was_sent;
 	int   rxcnt_timeout;		/* counter rxcnt timeout to send HANG */
 	int   txcnt_timeout;		/* counter txcnt timeout to send HANG */
+#ifdef BCM4334_CHIP	
+	int tx_seq_badcnt;
+#endif
 #ifdef WLMEDIA_HTSF
 	uint8 htsfdlystat_sz; /* Size of delay stats, max 255B */
 #endif
 	struct reorder_info *reorder_bufs[WLHOST_REORDERDATA_MAXFLOWS];
+#if defined(PNO_SUPPORT) && defined(CONFIG_HAS_WAKELOCK)
+	struct wake_lock	pno_wakelock;
+#endif
 } dhd_pub_t;
 
 	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 27)) && defined(CONFIG_PM_SLEEP)
@@ -272,9 +281,19 @@ typedef struct dhd_pub {
 				wait_event_interruptible_timeout(a, !dhd_mmc_suspend, HZ/100); \
 			} \
 		}	while (0)
-	#define DHD_PM_RESUME_WAIT(a)		_DHD_PM_RESUME_WAIT(a, 200)
+#ifdef CUSTOMER_HW_SAMSUNG
+	#define DHD_PM_RESUME_WAIT(a)		_DHD_PM_RESUME_WAIT(a, 500)
+#else
+	#define DHD_PM_RESUME_WAIT(a) 		_DHD_PM_RESUME_WAIT(a, 200)
+#endif /* CUSTOMER_HW_SAMSUNG */
 	#define DHD_PM_RESUME_WAIT_FOREVER(a)	_DHD_PM_RESUME_WAIT(a, ~0)
-	#define DHD_PM_RESUME_RETURN_ERROR(a)	do { if (dhd_mmc_suspend) return a; } while (0)
+	#define DHD_PM_RESUME_RETURN_ERROR(a)	do { \
+		if (dhd_mmc_suspend) { \
+			printf("mmc in suspend yet!!!: %s %d\n", \
+					__FUNCTION__, __LINE__); \
+			return a; \
+		} \
+	} while (0)
 	#define DHD_PM_RESUME_RETURN		do { if (dhd_mmc_suspend) return; } while (0)
 
 	#define DHD_SPINWAIT_SLEEP_INIT(a) DECLARE_WAIT_QUEUE_HEAD(a);
@@ -346,25 +365,25 @@ inline static void MUTEX_UNLOCK_SOFTAP_SET(dhd_pub_t * dhdp)
 		printf("call wake_lock: %s %d\n", \
 			__FUNCTION__, __LINE__); \
 		dhd_os_wake_lock(pub); \
-	} while(0)
+	} while (0)
 #define DHD_OS_WAKE_UNLOCK(pub) \
 	do { \
 		printf("call wake_unlock: %s %d\n", \
 			__FUNCTION__, __LINE__); \
 		dhd_os_wake_unlock(pub); \
-	} while(0)
+	} while (0)
 #define DHD_OS_WAKE_LOCK_TIMEOUT(pub) \
 	do { \
 		printf("call wake_lock_timeout: %s %d\n", \
 			__FUNCTION__, __LINE__); \
 		dhd_os_wake_lock_timeout(pub); \
-	} while(0)
+	} while (0)
 #define DHD_OS_WAKE_LOCK_TIMEOUT_ENABLE(pub, val) \
 	do { \
 		printf("call wake_lock_timeout_enable[%d]: %s %d\n", \
 			val, __FUNCTION__, __LINE__); \
 		dhd_os_wake_lock_timeout_enable(pub, val); \
-	} while(0)
+	} while (0)
 #else
 #define DHD_OS_WAKE_LOCK(pub)			dhd_os_wake_lock(pub)
 #define DHD_OS_WAKE_UNLOCK(pub)			dhd_os_wake_unlock(pub)
@@ -656,8 +675,13 @@ extern char fw_path2[MOD_PARAM_PATHLEN];
 /* Flag to indicate if we should download firmware on driver load */
 extern uint dhd_download_fw_on_driverload;
 
-/* Flags to indicate if we distingish power off scheme during suspend */
-extern bool suspend_power_off;
+#if defined(WL_CFG80211) && defined(CUSTOMER_HW_SAMSUNG)
+/* CSP#505233: Flags to indicate if we distingish power off policy when
+ * user set the memu "Keep Wi-Fi on during sleep" to "Never"
+ */
+extern int sleep_never;
+int dhd_deepsleep(struct net_device *dev, int flag);
+#endif /* WL_CFG80211 && CUSTOMER_HW_SAMSUNG */
 
 #ifdef BCM4334_CHECK_CHIP_REV
 /* Check chip revision */

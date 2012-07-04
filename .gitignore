@@ -94,6 +94,7 @@ GTAGS
 _t32
 _tool
 
+!recovery.tar.xz
 Module.symvers
 compile-*.log
 # build_kernel.sh

@@ -113,12 +113,18 @@ dhdcdc_cmplt(dhd_pub_t *dhd, uint32 id, uint32 len)
 
 	DHD_TRACE(("%s: Enter\n", __FUNCTION__));
 
+#ifdef CUSTOMER_HW_SAMSUNG
+	DHD_OS_WAKE_LOCK(dhd);
+#endif /* CUSTOMER_HW_SAMSUNG */
 	do {
 		ret = dhd_bus_rxctl(dhd->bus, (uchar*)&prot->msg, cdc_len);
 		if (ret < 0)
 			break;
 	} while (CDC_IOC_ID(ltoh32(prot->msg.flags)) != id);
 
+#ifdef CUSTOMER_HW_SAMSUNG
+	DHD_OS_WAKE_UNLOCK(dhd);
+#endif /* CUSTOMER_HW_SAMSUNG */
 	return ret;
 }
 
@@ -237,7 +243,7 @@ dhdcdc_set_ioctl(dhd_pub_t *dhd, int ifidx, uint cmd, void *buf, uint len, uint8
 		return -EIO;
 	}
 #ifdef CONFIG_CONTROL_PM
-	if((g_pm_control== TRUE) && (cmd== WLC_SET_PM))
+	if ((g_pm_control == TRUE) && (cmd == WLC_SET_PM))
 	{
 		DHD_ERROR(("SET PM ignored!!!!!!!!!!!!!!!!!!!!!!\n"));
 		goto done;
@@ -2203,6 +2209,9 @@ dhd_wlfc_cleanup(dhd_pub_t *dhd)
 	for (i = 0; i < h->max_items; i++) {
 		if (h->items[i].state == WLFC_HANGER_ITEM_STATE_INUSE) {
 			PKTFREE(wlfc->osh, h->items[i].pkt, TRUE);
+			h->items[i].state = WLFC_HANGER_ITEM_STATE_FREE;
+			h->items[i].pkt = NULL;
+			h->items[i].identifier = 0;
 		}
 	}
 	return;
